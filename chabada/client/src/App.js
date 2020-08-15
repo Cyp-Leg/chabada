@@ -1,5 +1,6 @@
 import React from 'react'
 import SearchField from './components/SearchField'
+import LyricsSearchProvider from './components/SearchContext'
 import './App.css'
 
 function App() {
@@ -9,7 +10,9 @@ function App() {
         <h1>Chabadaaaaa</h1>
       </header>
       <div className='content'>
-        <SearchField />
+        <LyricsSearchProvider>
+          <SearchField />
+        </LyricsSearchProvider>
       </div>
     </div>
   )

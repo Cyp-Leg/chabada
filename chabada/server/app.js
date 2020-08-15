@@ -1,12 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const axios = require('axios')
 const bodyParser = require('body-parser')
-const cheerio = require('cheerio')
-const { Scraper, Root, CollectContent } = require('nodejs-web-scraper')
-const fs = require('fs')
 const app = express()
 const port = 3000
-
 app.use(bodyParser.json({ type: 'application/*+json' }))
 
 app.use(bodyParser.text({ type: 'text/html' }))
@@ -19,38 +16,21 @@ app.use(function(req, res, next) {
 
 app.get('/lookup', async (req, res) => {
   const params = req.query.keywords.replace(' ', '%20')
-  const config = {
-    baseSiteUrl: `https://www.lyrics.com/lyrics/${params}`,
-    startUrl: `https://www.lyrics.com/lyrics/${params}`,
-    delay: 10000,
-    timeout: 15000
-  }
+  const { API_KEY, USER_ID } = process.env
 
-  const getElementContent = elt => console.log('Elt: ', elt)
-
-  const scraper = new Scraper(config)
-
-  const root = new Root()
-
-  const title = new CollectContent('.lyric-meta-title', {
-    getElementContent
-  }) //Any of these will fit.
-
-  root.addOperation(title)
-
-  await scraper.scrape(root)
-
-  res.sendStatus(200)
-  /*
-  axios(url).then(async response => {
-    const html = response.data
-    const $ = cheerio.load(html)
-    await fs.writeFile('./result.html', html, err => {
-      console.log('Error: ', err)
+  console.log('Api key: ', API_KEY)
+  console.log('Env', process.env)
+  axios
+    .get(
+      `https://www.stands4.com/services/v2/lyrics.php?uid=${USER_ID}&tokenid=${API_KEY}&term=${params}&format=json`
+    )
+    .then(response => {
+      //const $ = cheerio.load(res.data)
+      //console.log('Res: ', $('album').html())
+      console.log('Res: ', response.data)
+      res.send(response.data)
     })
-    console.log($('.sec-lyric').length)
-    res.send(200)
-  })*/
+    .catch(err => console.log('Err: ', err))
 })
 
 app.listen(port, () => {
